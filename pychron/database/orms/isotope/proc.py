@@ -5,7 +5,7 @@
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-#   http://www.apache.org/licenses/LICENSE-2.0
+# http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
@@ -356,6 +356,19 @@ class proc_FitHistoryTable(Base, HistoryMixin):
                             uselist=False)
 
 
+class proc_BaselineFitTable(Base, BaseMixin):
+    history_id = foreignkey('proc_FitHistoryTable')
+    baseline_id = foreignkey('meas_BaselineTable')
+
+    fit = stringcolumn()
+    error_type = stringcolumn(default='SD')
+    filter_outliers = Column(Boolean)
+    filter_outlier_iterations = Column(Integer, default=1)
+    filter_outlier_std_devs = Column(Integer, default=1)
+    include_baseline_error = Column(Boolean)
+    time_zero_offset = Column(Float)
+
+
 class proc_FitTable(Base, BaseMixin):
     history_id = foreignkey('proc_FitHistoryTable')
     isotope_id = foreignkey('meas_IsotopeTable')
@@ -386,10 +399,18 @@ class proc_SelectedHistoriesTable(Base, BaseMixin):
 
     dr_sets = relationship('proc_DataReductionTagSetTable', backref='selected_histories')
 
+
 class proc_IsotopeResultsTable(Base, BaseMixin):
     signal_ = Column(Float(32))
     signal_err = Column(Float(32))
     isotope_id = foreignkey('meas_IsotopeTable')
+    history_id = foreignkey('proc_FitHistoryTable')
+
+
+class proc_BaselineResultsTable(Base, BaseMixin):
+    signal_ = Column(Float(32))
+    signal_err = Column(Float(32))
+    baseline_id = foreignkey('meas_BaselineTable')
     history_id = foreignkey('proc_FitHistoryTable')
 
 

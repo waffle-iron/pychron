@@ -1,4 +1,4 @@
-#===============================================================================
+# ===============================================================================
 # Copyright 2013 Jake Ross
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,6 +23,7 @@ from sqlalchemy import Column, Integer, String, \
     ForeignKey, BLOB, Float, Time, Boolean, DateTime
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql.expression import func
+
 
 
 
@@ -122,6 +123,7 @@ class meas_AnalysisTable(Base, BaseMixin):
     def project_name(self):
         return self.labnumber.sample.project.name
 
+
 class meas_ExperimentTable(Base, NameMixin):
     analyses = relationship('meas_AnalysisTable', backref='experiment')
 
@@ -186,15 +188,33 @@ class meas_SpectrometerDeflectionsTable(Base, BaseMixin):
     deflection = Column(Float)
 
 
+class meas_SniffTable(Base, BaseMixin):
+    analysis_id = foreignkey('meas_AnalysisTable')
+    detector_id = foreignkey('gen_DetectorTable')
+    data = Column(BLOB)
+
+
+class meas_BaselineTable(Base, BaseMixin):
+    analysis_id = foreignkey('meas_AnalysisTable')
+    detector_id = foreignkey('gen_DetectorTable')
+    data = Column(BLOB)
+    fits = relationship('proc_BaselineFitTable',
+                        backref='baseline')
+
+    results = relationship('proc_BaselineResultsTable',
+                           backref='baseline')
+
+
 class meas_IsotopeTable(Base, BaseMixin):
     molecular_weight_id = foreignkey('gen_MolecularWeightTable')
     analysis_id = foreignkey('meas_AnalysisTable')
     detector_id = foreignkey('gen_DetectorTable')
-    kind = stringcolumn()
+    data = Column(BLOB)
+    # kind = stringcolumn()
 
-    signal = relationship('meas_SignalTable',
-                          backref='isotope',
-                          uselist=False)
+    # signal = relationship('meas_SignalTable',
+    #                       backref='isotope',
+    #                       uselist=False)
 
     fits = relationship('proc_FitTable',
                         backref='isotope')

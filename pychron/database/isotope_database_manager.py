@@ -27,6 +27,7 @@ from apptools.preferences.preference_binding import bind_preference
 import weakref
 #============= local library imports  ==========================
 from traits.has_traits import provides
+from pychron.core.codetools.simple_timeit import timethis
 from pychron.core.i_datastore import IDatastore
 from pychron.core.progress import progress_loader, CancelLoadingError
 from pychron.database.adapters.isotope_adapter import IsotopeAdapter
@@ -422,19 +423,21 @@ class IsotopeDatabaseManager(BaseIsotopeDatabaseManager):
         #     self.debug('loading uuid={}'.format(ui))
 
         #get all dbrecords with one call
-        ms = self.db.get_analyses_uuid(uuids)
-        # ms = timethis(self.db.get_analyses_uuid, args=(uuids,))
+        # ms,bs = self.db.get_analyses_uuid(uuids)
+        ms,bs = timethis(self.db.get_analyses_uuid, args=(uuids,))
 
         construct = self._construct_analysis
         add_to_cache = self._add_to_cache
 
-        key = lambda x: x[0]
-        dbrecords = groupby(ms, key=key)
+        # key = lambda x: x[0]
+        dbrecords = groupby(ms, key=lambda x: x[0])
+        dbbirecords = groupby(bs, key=lambda x: x.analysis_id)
 
         def func(x, prog, i, n):
             _, gi = dbrecords.next()
+            _, bi = dbbirecords.next()
             self.debug('constructing {}/{} {} {}'.format(i + 1, n, x.record_id, x.uuid))
-            a = construct(x, gi, prog, unpack=unpack,
+            a = construct(x, (gi,bi), prog, unpack=unpack,
                           calculate_age=calculate_age,
                           calculate_F=calculate_F, **kw)
             if use_cache:

@@ -50,6 +50,7 @@ class gen_AnalysisTypeTable(Base, NameMixin):
 class gen_DetectorTable(Base, NameMixin):
     kind = stringcolumn()
     isotopes = relationship('meas_IsotopeTable', backref='detector')
+    baselines = relationship('meas_BaselineTable', backref='detector')
     deflections = relationship('meas_SpectrometerDeflectionsTable', backref='detector')
     intercalibrations = relationship('proc_DetectorIntercalibrationTable', backref='detector')
     detector_parameters = relationship('proc_DetectorParamTable', backref='detector')

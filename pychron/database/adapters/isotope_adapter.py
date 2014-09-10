@@ -64,7 +64,7 @@ from pychron.database.orms.isotope.meas import meas_AnalysisTable, \
     meas_ExperimentTable, meas_ExtractionTable, meas_IsotopeTable, meas_MeasurementTable, \
     meas_SpectrometerParametersTable, meas_SpectrometerDeflectionsTable, \
     meas_SignalTable, meas_PeakCenterTable, meas_PositionTable, \
-    meas_ScriptTable, meas_MonitorTable
+    meas_ScriptTable, meas_MonitorTable, meas_BaselineTable
 
 # proc_
 from pychron.database.orms.isotope.proc import proc_DetectorIntercalibrationHistoryTable, \
@@ -1536,22 +1536,40 @@ class IsotopeAdapter(DatabaseAdapter):
 
     def get_analyses_uuid(self, uuids):
         with self.session_ctx() as sess:
-            q = sess.query(meas_AnalysisTable,
-                           gen_LabTable,
-                           meas_IsotopeTable,
-                           gen_SampleTable.name,
-                           gen_ProjectTable.name,
-                           gen_MaterialTable.name)
-            q = q.join(meas_IsotopeTable)
-            q = q.join(gen_LabTable)
-            q = q.join(gen_SampleTable, gen_ProjectTable, gen_MaterialTable)
-            q = q.filter(meas_AnalysisTable.uuid.in_(uuids))
-            q = q.order_by(meas_AnalysisTable.analysis_timestamp.asc())
+            def get_signals():
 
-            try:
-                return q.all()
-            except NoResultFound:
-                return []
+                    q = sess.query(meas_AnalysisTable,
+                                   gen_LabTable,
+                                   meas_IsotopeTable,
+                                   # meas_BaselineTable,
+                                   gen_SampleTable.name,
+                                   gen_ProjectTable.name,
+                                   gen_MaterialTable.name)
+                    q = q.join(meas_IsotopeTable)
+                    # q = q.join(meas_BaselineTable)
+                    q = q.join(gen_LabTable)
+                    q = q.join(gen_SampleTable, gen_ProjectTable, gen_MaterialTable)
+                    q = q.filter(meas_AnalysisTable.uuid.in_(uuids))
+                    q = q.order_by(meas_AnalysisTable.analysis_timestamp.asc())
+
+                    try:
+                        return q.all()
+                    except NoResultFound:
+                        return []
+
+            def get_baselines():
+                q = sess.query(meas_BaselineTable)
+                q = q.join(meas_AnalysisTable)
+                q = q.filter(meas_AnalysisTable.uuid.in_(uuids))
+                q = q.order_by(meas_AnalysisTable.analysis_timestamp.asc())
+                # q= q.group_by(meas_AnalysisTable.uuid)
+                # print compile_query(q)
+                try:
+                    return q.all()
+                except NoResultFound:
+                    return []
+
+            return get_signals(), get_baselines()
 
     def get_analysis_isotopes(self, uuid):
         """
