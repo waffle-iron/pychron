@@ -34,6 +34,9 @@ def entry_point(modname, klass, setup_version_id='', debug=False):
         entry point
     """
 
+    if debug:
+        sys.path.append('/Users/ross/Programming/github/ararpy')
+
     user = initialize_version(modname, debug)
     set_commandline_args()
 

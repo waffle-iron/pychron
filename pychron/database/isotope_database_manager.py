@@ -60,7 +60,7 @@ class BaseIsotopeDatabaseManager(Loggable):
         if connect:
             self.db.connect(warn=warn, version_warn=version_warn, attribute_warn=attribute_warn)
 
-    #IDatastore protocol
+    # IDatastore protocol
     def get_greatest_aliquot(self, identifier):
         ret = 0
         if self.db:

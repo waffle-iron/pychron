@@ -24,10 +24,17 @@ from ConfigParser import ConfigParser
 from copy import copy
 import os
 # ============= local library imports  ==========================
-from pychron.processing.argon_calculations import calculate_F, abundance_sensitivity_correction, age_equation, \
+# from pychron.processing.argon_calculations import calculate_F, abundance_sensitivity_correction, age_equation, \
+#     calculate_decay_factor
+
+from ararpy.arar import calculate_F, abundance_sensitivity_correction, age_equation, \
     calculate_decay_factor
-from pychron.processing.arar_constants import ArArConstants
-from pychron.processing.isotope import Isotope, Baseline
+from ararpy.isotope import Isotope, Baseline
+
+
+from ararpy.constants import ArArConstants
+# from pychron.processing.arar_constants import ArArConstants
+# from pychron.processing.isotope import Isotope, Baseline
 
 from pychron.loggable import Loggable
 from pychron.core.helpers.isotope_utils import sort_isotopes
@@ -88,8 +95,6 @@ class ArArAge(Loggable):
     ar39decayfactor = Float
     ar37decayfactor = Float
 
-    arar_constants = Instance(ArArConstants, ())
-    logger = logger
     Ar39_decay_corrected = Either(Variable, AffineScalarFunc)
     Ar37_decay_corrected = Either(Variable, AffineScalarFunc)
 
@@ -106,6 +111,44 @@ class ArArAge(Loggable):
     # def __init__(self, *args, **kw):
     # HasTraits.__init__(self, *args, **kw)
     #     self.logger = logger
+    def __init__(self, *args, **kw):
+        from pychron.core.ui.preference_binding import bind_preference
+        arar_constants = self.arar_constants
+        bind_preference(arar_constants, 'lambda_b_v', 'pychron.arar.constants.lambda_b')
+        bind_preference(arar_constants, 'lambda_b_e', 'pychron.arar.constants.lambda_b_error')
+        bind_preference(arar_constants, 'lambda_e_v', 'pychron.arar.constants.lambda_e')
+        bind_preference(arar_constants, 'lambda_e_e', 'pychron.arar.constants.lambda_e_error')
+        bind_preference(arar_constants, 'lambda_Cl36_v', 'pychron.arar.constants.lambda_Cl36')
+        bind_preference(arar_constants, 'lambda_Cl36_e', 'pychron.arar.constants.lambda_Cl36_error')
+        bind_preference(arar_constants, 'lambda_Ar37_v', 'pychron.arar.constants.lambda_Ar37')
+        bind_preference(arar_constants, 'lambda_Ar37_e', 'pychron.arar.constants.lambda_Ar37_error')
+        bind_preference(arar_constants, 'lambda_Ar39_v', 'pychron.arar.constants.lambda_Ar39')
+        bind_preference(arar_constants, 'lambda_Ar39_e', 'pychron.arar.constants.lambda_Ar39_error')
+
+        bind_preference(arar_constants, 'atm4036_v', 'pychron.arar.constants.Ar40_Ar36_atm')
+        bind_preference(arar_constants, 'atm_4036_e', 'pychron.arar.constants.Ar40_Ar36_atm_error')
+        bind_preference(arar_constants, 'atm4038_v', 'pychron.arar.constants.Ar40_Ar38_atm')
+        bind_preference(arar_constants, 'atm_4038_e', 'pychron.arar.constants.Ar40_Ar38_atm_error')
+
+        bind_preference(arar_constants, 'k3739_mode', 'pychron.arar.constants.Ar37_Ar39_mode')
+        bind_preference(arar_constants, 'k3739_v', 'pychron.arar.constants.Ar37_Ar39')
+        bind_preference(arar_constants, 'k3739_e', 'pychron.arar.constants.Ar37_Ar39_error')
+
+        bind_preference(arar_constants, 'age_units', 'pychron.arar.constants.age_units')
+        bind_preference(arar_constants, 'abundance_sensitivity', 'pychron.arar.constants.abundance_sensitivity')
+
+        prefid = 'pychron.arar.constants'
+        bind_preference(arar_constants, 'atm4036_citation', '{}.Ar40_Ar36_atm_citation'.format(prefid))
+        bind_preference(arar_constants, 'atm4038_citation', '{}.Ar40_Ar38_atm_citation'.format(prefid))
+        bind_preference(arar_constants, 'lambda_b_citation', '{}.lambda_b_citation'.format(prefid))
+        bind_preference(arar_constants, 'lambda_e_citation', '{}.lambda_e_citation'.format(prefid))
+        bind_preference(arar_constants, 'lambda_Cl36_citation', '{}.lambda_Cl36_citation'.format(prefid))
+        bind_preference(arar_constants, 'lambda_Ar37_citation', '{}.lambda_Ar37_citation'.format(prefid))
+        bind_preference(arar_constants, 'lambda_Ar39_citation', '{}.lambda_Ar39_citation'.format(prefid))
+        bind_preference(arar_constants, 'allow_negative_ca_correction',
+                        '{}.allow_negative_ca_correction'.format(prefid))
+
+        super(ArArAge, self).__init__(*args, **kw)
 
     def set_j(self, s, e):
         self.j = ufloat(s, std_dev=e)

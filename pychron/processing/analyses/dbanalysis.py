@@ -31,7 +31,8 @@ from pychron.processing.analyses.analysis_view import DBAnalysisView
 from pychron.processing.analyses.changes import BlankChange, FitChange
 from pychron.processing.analyses.exceptions import NoProductionError
 from pychron.processing.analyses.view.snapshot_view import Snapshot
-from pychron.processing.isotope import Blank, Baseline, Sniff, Isotope
+# from pychron.processing.isotope import Blank, Baseline, Sniff, Isotope
+from ararpy.isotope import Blank, Baseline, Sniff, Isotope
 from pychron.pychron_constants import INTERFERENCE_KEYS
 
 

@@ -24,7 +24,10 @@ from numpy import array, nan
 # ============= local library imports  ==========================
 from uncertainties import ufloat
 # from pychron.processing.analysis import Marker
-from pychron.processing.argon_calculations import calculate_plateau_age, age_equation, calculate_isochron
+# from pychron.processing.argon_calculations import calculate_plateau_age, age_equation, calculate_isochron
+from ararpy.arar import age_equation
+from ararpy.plateau import calculate_plateau_age
+from ararpy.isochron import calculate_isochron
 from pychron.pychron_constants import ALPHAS, AGE_MA_SCALARS
 from pychron.core.stats.core import calculate_mswd, calculate_weighted_mean, validate_mswd
 

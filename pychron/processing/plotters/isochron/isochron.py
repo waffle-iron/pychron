@@ -27,7 +27,9 @@ from numpy import linspace
 
 from pychron.core.helpers.formatting import floatfmt, calc_percent_error, format_percent_error
 from pychron.graph.error_envelope_overlay import ErrorEnvelopeOverlay
-from pychron.processing.argon_calculations import extract_isochron_xy
+
+from ararpy.arar import extract_isochron_xy
+# from pychron.processing.argon_calculations import extract_isochron_xy
 from pychron.processing.plotters.arar_figure import BaseArArFigure
 
 from pychron.graph.error_ellipse_overlay import ErrorEllipseOverlay
