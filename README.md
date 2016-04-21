@@ -1,3 +1,4 @@
+[![Stories in Ready](https://badge.waffle.io/NMGRL/pychron.png?label=ready&title=Ready)](https://waffle.io/NMGRL/pychron)
 Pychron
 ========
 
